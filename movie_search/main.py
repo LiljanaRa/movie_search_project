@@ -21,22 +21,22 @@ sqlite_dbconfig = "my_sqlite.db"
 def main(dbconfig, sqlite_dbconfig):
     query_handler = QueryHandler(dbconfig, sqlite_dbconfig)
     while True:
-        user_input = input("\nВыбери действие:\n\nДля поиска фильма по ключевому слову введи: 1"'\n'
-                           "Для поиска фильма по жанру и году введи: 2\n"
-                           "Для вывода самых популярных запросов введи: 3\n"
-                           "Для выхода введи: exit\n")
+        user_input = input("\nSelect an option:\n\nTo search for a movie by keyword, enter: 1"'\n'
+                           "To search for a movie by genre and year, enter: 2\n"
+                           "To display the most popular queries, enter: 3\n"
+                           "To exit, enter: exit\n")
 
         if user_input == "exit":
-            print("До скорой встречи!")
+            print("See you next time.")
             break
         elif user_input == "1":
             try:
-                keyword = input("Введи слово для поиска: ")
-                print("\nРезультаты поиска: ", "\n")
+                keyword = input("Enter a word for search: ").capitalize()
+                print("\nSearch result: ", "\n")
                 if not query_handler.get_all_by_keyword(keyword):
-                    print("По твоему запросу ничего не найдено. Попробуй еще раз!")
+                    print("Nothing was found for your query. Try again!")
                 else:
-                    print("\n".join([f"Название фильма: {row.get('title')}\nОписание: "
+                    print("\n".join([f"Movie title: {row.get('title')}\nDescription: "
                                  f"{row.get('description')}\n" for row
                                  in query_handler.get_all_by_keyword(keyword)]))
             except pymysql.Error as e:
@@ -45,15 +45,15 @@ def main(dbconfig, sqlite_dbconfig):
                 print("Error", e)
         elif user_input == "2":
             try:
-                print("Список жанров: ")
+                print("List of genres: ")
                 [print(row.get('name')) for row in query_handler.get_all_categories()]
-                category = input("Выбери жанр для поиска: ")
-                year = input("Введи год для поиска: ")
-                print("\nРезультаты поиска: ", "\n")
+                category = input("Select a genre to search: ")
+                year = input("Enter the year to search: ")
+                print("\nSearch result: ", "\n")
                 if not query_handler.get_all_by_category(category, year):
-                    print("По твоему запросу ничего не найдено. Попробуй еще раз!")
+                    print("Nothing was found for your query. Try again!")
                 else:
-                    print("\n".join([f"Название фильма: {row.get('title')}\nОписание: "
+                    print("\n".join([f"Movie title: {row.get('title')}\nDescription: "
                                  f"{row.get('description')}\n" for row
                                  in query_handler.get_all_by_category(category, year)]))
             except pymysql.Error as e:
@@ -62,15 +62,15 @@ def main(dbconfig, sqlite_dbconfig):
                 print("Error", e)
         elif user_input == "3":
             try:
-                print("Самые популярные запросы: \n")
+                print("The most popular queries: \n")
                 for query, count in query_handler.get_popular_queries():
-                    print(f"{query} искали {count} раз(а)")
+                    print(f"{query} was searched {count} times")
             except pymysql.Error as e:
                 print("SQLError", e)
             except Exception as e:
                 print("Error", e)
         else:
-            print("Введены некорректные данные.")
+            print("Incorrect data was entered.")
 
 
 

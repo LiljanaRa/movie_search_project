@@ -13,7 +13,7 @@ class QueryHandler(DBConnector):
         if not record:
             return None
         else:
-            self.query_log_word("По слову", keyword)
+            self.query_log_word("By the keyword", keyword)
             return record
 
     def get_all_categories(self):
@@ -30,7 +30,7 @@ class QueryHandler(DBConnector):
             if not result:
                 return None
             else:
-                self.query_log_category_year("По жанру и году", category, year)
+                self.query_log_category_year("By genre and year", category, year)
                 return result
 
     def query_log(self, query: str):
