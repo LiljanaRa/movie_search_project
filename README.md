@@ -1,0 +1,1 @@
+The project allows searching for movies based on specified criteria (word, genre and year), as well as displaying a list of the most popular queries. A Telegram bot integration is also available.
