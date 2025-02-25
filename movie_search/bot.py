@@ -1,27 +1,13 @@
 import telebot
 from telebot import types
-import dotenv
-from dotenv import load_dotenv
-import os
-import pymysql
-from pymysql.cursors import DictCursor
-from movie_search.query_manager import QueryHandler
+from movie_search.sakila_query_manager import SakilaQueryHandler
+from sqlite_query_manager import SqliteQueryHandler
+from db_config import *
 
 
-path = os.path.join(os.getcwd(), '.env')
-load_dotenv(dotenv_path=path)
-TOKEN = os.getenv('TOKEN')
 bot = telebot.TeleBot(token=TOKEN)
-dbconfig = {
-    'host': os.getenv('HOST'),
-    'user': os.getenv('USER'),
-    'password': os.getenv('PASSWORD'),
-    'database': os.getenv('DATABASE'),
-    'charset': os.getenv('CHARSET'),
-    'cursorclass': DictCursor
- }
-sqlite_dbconfig = "my_sqlite.db"
-query_handler = QueryHandler(dbconfig, sqlite_dbconfig)
+sqlite_query_handler = SqliteQueryHandler(sqlite_dbconfig)
+sakila_query_handler = SakilaQueryHandler(dbconfig, sqlite_query_handler)
 
 def main(chat_id):
     markup = types.InlineKeyboardMarkup()
@@ -60,7 +46,7 @@ def callback_query(call):
 def search_by_keyword(message):
     keyword = message.text
     try:
-        result = query_handler.get_all_by_keyword(keyword)
+        result = sakila_query_handler.get_all_by_keyword(keyword)
         if result:
             response = "\n\n".join([f"Movie title: {row.get('title')}\nDescription: "
                                     f"{row.get('description')}" for row in result])
@@ -74,7 +60,7 @@ def search_by_keyword(message):
     main(message.chat.id)
 
 def send_categories(chat_id):
-    categories = query_handler.get_all_categories()
+    categories = sakila_query_handler.get_all_categories()
     if categories:
         markup = types.InlineKeyboardMarkup()
         for row in categories:
@@ -84,7 +70,7 @@ def send_categories(chat_id):
 def search_by_category(message, category):
     year = message.text
     try:
-        result = query_handler.get_all_by_category(category, year)
+        result = sakila_query_handler.get_all_by_category(category, year)
         if not result:
             response = "Nothing was found for your query. Try again!"
         else:
@@ -98,7 +84,7 @@ def search_by_category(message, category):
 
 def send_popular_queries(chat_id):
     try:
-        queries = query_handler.get_popular_queries()
+        queries = sqlite_query_handler.get_popular_queries()
         if queries:
             response = "\n".join(f"{query}  was searched  {count} times" for query, count in queries)
         else:

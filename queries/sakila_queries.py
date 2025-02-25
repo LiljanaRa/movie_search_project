@@ -1,11 +1,7 @@
-class FilmQueries:
+class SakilaQueries:
     GET_ALL_BY_KEYWORD = """
-    SELECT title, description, release_year, length, name 
-    FROM film f
-    JOIN film_category fc 
-    ON f.film_id = fc.film_id
-    JOIN category c 
-    ON fc.category_id = c.category_id
+    SELECT title, description 
+    FROM film
     WHERE description
     LIKE %s
     OR title
@@ -17,7 +13,7 @@ class FilmQueries:
     FROM category
     """
     GET_ALL_BY_CATEGORY ="""
-    SELECT title, description, release_year, length, name 
+    SELECT title, description
     FROM film f
     JOIN film_category fc 
     ON f.film_id = fc.film_id
