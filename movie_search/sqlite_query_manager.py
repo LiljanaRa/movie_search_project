@@ -1,4 +1,4 @@
-from sqlite_db_connector import SqliteDBConnector
+from db_connector import SqliteDBConnector
 from queries.sqlite_queries import SqliteQueries
 
 
@@ -7,7 +7,7 @@ class SqliteQueryHandler(SqliteDBConnector):
         super().__init__(sqlite_dbconfig)
 
     def query_log(self, query: str):
-        cursor = self.get_sqlite_cursor()
+        cursor = self.get_cursor()
         cursor.execute(SqliteQueries.GET_COUNT, (query,))
         result = cursor.fetchone()
         if not result:
@@ -26,7 +26,7 @@ class SqliteQueryHandler(SqliteDBConnector):
         self.query_log(query)
 
     def get_popular_queries(self):
-        cursor = self.get_sqlite_cursor()
+        cursor = self.get_cursor()
         cursor.execute(SqliteQueries.GET_ALL)
         result = cursor.fetchall()
         return result

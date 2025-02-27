@@ -1,6 +1,6 @@
 from db_config import *
 from movie_search.sakila_query_manager import SakilaQueryHandler
-from sqlite_query_manager import SqliteQueryHandler
+from movie_search.sqlite_query_manager import SqliteQueryHandler
 
 
 def main():

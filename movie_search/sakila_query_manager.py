@@ -1,6 +1,6 @@
-from sakila_db_connector import SakilaDBConnector
+from db_connector import SakilaDBConnector
 from queries.sakila_queries import SakilaQueries
-from sqlite_query_manager import SqliteQueryHandler
+from movie_search.sqlite_query_manager import SqliteQueryHandler
 
 
 class SakilaQueryHandler(SakilaDBConnector):

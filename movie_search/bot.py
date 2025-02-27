@@ -1,7 +1,7 @@
 import telebot
 from telebot import types
 from movie_search.sakila_query_manager import SakilaQueryHandler
-from sqlite_query_manager import SqliteQueryHandler
+from movie_search.sqlite_query_manager import SqliteQueryHandler
 from db_config import *
 
 
