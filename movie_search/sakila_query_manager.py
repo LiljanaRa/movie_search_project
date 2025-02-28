@@ -24,6 +24,12 @@ class SakilaQueryHandler(SakilaDBConnector):
         category_list = cursor.fetchall()
         return category_list
 
+    def get_years_by_category(self, category):
+        cursor = self.get_cursor()
+        cursor.execute(SakilaQueries.GET_YEARS_BY_CATEGORY, (category,))
+        years = cursor.fetchall()
+        return years
+
     def get_all_by_category(self, category, year):
         cursor = self.get_cursor()
         cursor.execute(SakilaQueries.GET_ALL_BY_CATEGORY, (f"%{category}%", f"%{year}%"))

@@ -25,7 +25,7 @@ def send_welcome(message):
 
 @bot.message_handler(func=lambda message: True)
 def handle_message(message):
-    bot.send_message(message.chat.id, "Please check the buttons.")
+    bot.send_message(message.chat.id, "Please check the buttons")
     main(message.chat.id)
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -35,20 +35,20 @@ def callback_query(call):
         bot.register_next_step_handler(mes, search_by_keyword)
     elif call.data == "category":
         send_categories(call.message.chat.id)
-    elif call.data == "popular queries":
-        send_popular_queries(call.message.chat.id)
     elif call.data.startswith("category_"):
         category = call.data[9:]
-        mes = bot.send_message(call.message.chat.id, f"Enter the year:")
-        bot.register_next_step_handler(mes, lambda message:
-        search_by_category(message, category))
+        get_years_by_category(call.message.chat.id, category)
+    elif call.data.startswith("year_"):
+        search_by_category(call)
+    elif call.data == "popular queries":
+        send_popular_queries(call.message.chat.id)
 
 def search_by_keyword(message):
     keyword = message.text
     try:
         result = sakila_query_handler.get_all_by_keyword(keyword)
         if result:
-            response = "\n\n".join([f"Movie title: {row.get('title')}\nDescription: "
+            response = "Search result:\n\n"+"\n\n".join([f"Movie title: {row.get('title')}\nDescription: "
                                     f"{row.get('description')}" for row in result])
         else:
             response = "Nothing was found for your query. Try again!"
@@ -67,26 +67,33 @@ def send_categories(chat_id):
             markup.add(types.InlineKeyboardButton(row.get('name'), callback_data=f"category_{row.get('name')}"))
         bot.send_message(chat_id, "Select a genre:", reply_markup=markup)
 
-def search_by_category(message, category):
-    year = message.text
+def get_years_by_category(chat_id, category):
+    years = sakila_query_handler.get_years_by_category(category)
+    markup = types.InlineKeyboardMarkup()
+    for year in years:
+        markup.add(types.InlineKeyboardButton(year.get('release_year'), callback_data=f"year_{category}_{year.get('release_year')}"))
+    bot.send_message(chat_id, f"Select a year for the genre: {category}\n\n", reply_markup=markup)
+
+def search_by_category(call):
+    _, category, year = call.data.split("_")
     try:
         result = sakila_query_handler.get_all_by_category(category, year)
         if not result:
             response = "Nothing was found for your query. Try again!"
         else:
-            response = "\n\n".join([f"Movie title: {row.get('title')}\nDescription: {row.get('description')}" for row in result])
-        bot.send_message(message.chat.id, response, parse_mode="Markdown")
+            response = "Search result:\n\n"+"\n\n".join([f"Movie title: {row.get('title')}\nDescription: {row.get('description')}" for row in result])
+        bot.send_message(call.message.chat.id, response, parse_mode="Markdown")
     except pymysql.Error as e:
-        bot.send_message(message.chat.id, f"SQLError {e}")
+        bot.send_message(call.message.chat.id, f"SQLError {e}")
     except Exception as e:
-        bot.send_message(message.chat.id, f"Error {e}")
-    main(message.chat.id)
+        bot.send_message(call.message.chat.id, f"Error {e}")
+    main(call.message.chat.id)
 
 def send_popular_queries(chat_id):
     try:
         queries = sqlite_query_handler.get_popular_queries()
         if queries:
-            response = "\n".join(f"{query}  was searched  {count} times" for query, count in queries)
+            response = "The most popular queries:\n\n"+"\n".join(f"{query}  was searched  {count} times" for query, count in queries)
         else:
             response = "No popular queries yet"
         bot.send_message(chat_id, response)
@@ -95,5 +102,6 @@ def send_popular_queries(chat_id):
     except Exception as e:
         bot.send_message(chat_id, f"Error {e}")
     main(chat_id)
+
 
 bot.infinity_polling(none_stop=True)
